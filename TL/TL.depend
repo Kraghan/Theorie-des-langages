@@ -15,3 +15,19 @@
 
 1474289076 c:\users\madjo\onedrive\cours\licence\tl\tl\state_node.h
 
+1475445672 source:c:\users\kraghan\documents\workspace\c\theorie-des-langages\tl\fa.c
+	<stdio.h>
+	<stdlib.h>
+	"Fa.h"
+	"State_set.h"
+
+1475445416 c:\users\kraghan\documents\workspace\c\theorie-des-langages\tl\fa.h
+	"State.h"
+
+1475416159 c:\users\kraghan\documents\workspace\c\theorie-des-langages\tl\state.h
+
+1475440570 c:\users\kraghan\documents\workspace\c\theorie-des-langages\tl\state_set.h
+	"State_node.h"
+
+1475416159 c:\users\kraghan\documents\workspace\c\theorie-des-langages\tl\state_node.h
+

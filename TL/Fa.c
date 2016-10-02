@@ -55,14 +55,16 @@ void fa_create(struct fa *self, size_t alpha_count, size_t state_count)
     self->state_size = state_count;
 
     self->states = (state*)malloc(sizeof(struct state)*state_count);
-
-    self->transitions = (state_set**)malloc(sizeof(state_set) * state_count);
-    unsigned int i;
-    for(i = 0; i < alpha_count; i++)
+    self->transitions = (state_set**)malloc(sizeof(state_set*) * state_count);
+    unsigned int i,j;
+    for(i = 0; i < state_count; ++i)
     {
         state_create_state(&(self->states[i]),(size_t)i);
-        self->transitions[i] = (state_set*)malloc(sizeof(state_set)*state_count);
-        set_new(self->transitions[i]);
+        self->transitions[i] = (state_set*)malloc(sizeof(state_set)*alpha_count);
+        for(j = 0; j < alpha_count; ++j)
+        {
+            set_new(&(self->transitions[i][j]));
+        }
     }
 }
 
@@ -88,6 +90,7 @@ void fa_set_state_initial(struct fa *self, size_t state_id)
         if(self->states[i].id == state_id)
         {
             self->states[i].is_initial = true;
+            return;
         }
     }
 }
@@ -100,6 +103,7 @@ void fa_set_state_final(struct fa *self, size_t state_id)
         if(self->states[i].id == state_id)
         {
             self->states[i].is_final = true;
+            return;
         }
     }
 }
@@ -139,6 +143,7 @@ int main()
     size_t alpha_size = 2;
     size_t state_size = 5;
     fa automate;
+
     fa_create(&automate,alpha_size,state_size);
     // Insert code
     fa_set_state_initial(&automate,0);
@@ -147,7 +152,7 @@ int main()
     fa_set_state_final(&automate,1);
     fa_set_state_final(&automate,4);
 
-    fa_add_transition(&automate,0,'a',1);
+    /*fa_add_transition(&automate,0,'a',1);
     fa_add_transition(&automate,0,'a',2);
     fa_add_transition(&automate,0,'a',3);
     fa_add_transition(&automate,1,'b',3);
@@ -156,7 +161,7 @@ int main()
     fa_add_transition(&automate,3,'a',3);
     fa_add_transition(&automate,3,'b',4);
     fa_add_transition(&automate,4,'a',4);
-
+    */
     fa_print(&automate,stdout);
 
     fa_destroy(&automate);
