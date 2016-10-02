@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1474729493 source:c:\users\madjo\onedrive\cours\licence\tl\tl\fa.c
+	<stdio.h>
+	<stdlib.h>
+	"Fa.h"
+	"State_set.h"
+
+1474277063 c:\users\madjo\onedrive\cours\licence\tl\tl\fa.h
+	"State.h"
+
+1474276470 c:\users\madjo\onedrive\cours\licence\tl\tl\state.h
+
+1474729386 c:\users\madjo\onedrive\cours\licence\tl\tl\state_set.h
+	"State_node.h"
+
+1474289076 c:\users\madjo\onedrive\cours\licence\tl\tl\state_node.h
+
