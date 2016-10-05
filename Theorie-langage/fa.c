@@ -1,18 +1,91 @@
 //
-// Created by kraghan on 03/10/16.
+// Created by Kraghan on 05/10/2016.
 //
 
-#include "Fa.h"
+#include "fa.h"
 
-void fa_create(struct fa* self, unsigned int alpha_count, unsigned int state_count)
+void faCreate(fa* self, unsigned int alpha_count, unsigned int state_count)
 {
+    unsigned int i;
     self->alpha_size = alpha_count;
     self->state_size = state_count;
+    self->states = (state*)malloc(sizeof(state)*state_count);
+    for(i = 0; i < state_count; ++i)
+    {
+        stateCreate(&self->states[i],i);
+    }
 
-    self->states = NULL;
-    states_list_create(self->states);
+    self->transitions = (state**)malloc(sizeof(state*)*state_count*alpha_count);
+    for(i = 0; i < state_count*alpha_count;++i)
+    {
+        self->transitions[i] =(state*)malloc(sizeof(state)*state_count);
+    }
+}
 
-    self->transitions = NULL;
-    transitions_list_create();
+void faDestroy(fa* self)
+{
+    free(self->states);
 
+    unsigned int i;
+    for(i = 0; i < self->state_size*self->alpha_size;++i)
+    {
+        free(self->transitions[i]);
+    }
+    free(self->transitions);
+
+    self->alpha_size = 0;
+    self->state_size = 0;
+}
+
+void faSetStateInitial(fa* self, unsigned int state)
+{
+    unsigned int i;
+    for(i = 0; i < self->state_size;++i)
+    {
+        if(self->states[i].id == state)
+        {
+            stateSetInitial(&(self->states[i]));
+        }
+    }
+}
+
+void faSetStateFinal(fa* self,unsigned int state)
+{
+    unsigned int i;
+    for(i = 0; i < self->state_size;++i)
+    {
+        if(self->states[i].id == state)
+        {
+            stateSetFinal(&(self->states[i]));
+        }
+    }
+}
+
+void faPrint(fa* self, FILE* out)
+{
+    unsigned int i;
+
+    fprintf(out,"States : \n\t");
+    for(i = 0; i < self->state_size;++i)
+    {
+        fprintf(out,"%u ",self->states[i].id);
+    }
+
+    fprintf(out,"\nInitial states : \n\t");
+    for(i = 0; i < self->state_size;++i)
+    {
+        if(self->states[i].is_initial == true)
+        {
+            fprintf(out,"%u ",self->states[i].id);
+        }
+    }
+
+    fprintf(out,"\nFinal states : \n\t");
+    for(i = 0; i < self->state_size;++i)
+    {
+        if(self->states[i].is_final == true)
+        {
+            fprintf(out,"%u ",self->states[i].id);
+        }
+    }
 }
