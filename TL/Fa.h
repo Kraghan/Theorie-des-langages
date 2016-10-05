@@ -1,4 +1,5 @@
 #include "State.h"
+#include "State_list.h"
 // Automate fini
 struct fa
 {
@@ -7,9 +8,9 @@ struct fa
     // Nombre d'etat
     size_t state_size;
     // Tableau d'etat
-    struct state *states;
-    // Tableau 2D de transitions
-    struct state_set **transitions;
+    struct state* states;
+    // Tableau de transitions
+   	struct state_list* transitions;
 };
 
 void fa_create(struct fa *self, size_t alpha_count, size_t state_count);

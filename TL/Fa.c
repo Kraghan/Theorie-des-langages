@@ -1,46 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Fa.h"
-#include "State_set.h"
 
-typedef struct state_node state_node;
 typedef struct fa fa;
 typedef struct state state;
-typedef struct state_set state_set;
-
-void node_create(state_node* node, size_t state_id)
-{
-    node->state = state_id;
-    node->next = NULL;
-}
-
-void set_add(state_set* state_set, size_t state_id)
-{
-    if(NULL == state_set->first)
-    {
-        state_node node;
-        node_create(&node,state_id);
-        state_set->first = &node;
-    }
-    else
-    {
-        state_node newNode;
-        node_create(&newNode,state_id);
-        state_node* node = state_set->first;
-        while(NULL != node->next){
-            if(node->state == state_id)
-                return;
-            node = node->next;
-        }
-        node->next = &newNode;
-    }
-
-}
-
-void set_new(state_set* set)
-{
-    set->first = NULL;
-}
+typedef struct state_list state_list;
 
 void state_create_state(state* state,size_t index)
 {
@@ -55,15 +19,14 @@ void fa_create(struct fa *self, size_t alpha_count, size_t state_count)
     self->state_size = state_count;
 
     self->states = (state*)malloc(sizeof(struct state)*state_count);
-    self->transitions = (state_set**)malloc(sizeof(state_set*) * state_count);
+    self->transitions = (state_list*)malloc(sizeof(state_list) * state_count * alpha_count);
     unsigned int i,j;
     for(i = 0; i < state_count; ++i)
     {
         state_create_state(&(self->states[i]),(size_t)i);
-        self->transitions[i] = (state_set*)malloc(sizeof(state_set)*alpha_count);
         for(j = 0; j < alpha_count; ++j)
         {
-            set_new(&(self->transitions[i][j]));
+            self->transitions[i*self->alpha_size + j].first = NULL;
         }
     }
 }
@@ -71,13 +34,25 @@ void fa_create(struct fa *self, size_t alpha_count, size_t state_count)
 void fa_destroy(struct fa *self)
 {
     free(self->states);
-    int i;
-    for(i = 0; i < self->state_size ;i++)
+    int i, j;
+    for(i = 0; i < self->state_size; ++i)
     {
-        free(self->transitions[i]);
+    	for(j = 0; j < self->alpha_size; ++j)
+    	{	
+    		printf("Hey ! %d %c\n",i,'a'+j);
+	    	struct state_node* node = self->transitions[i*self->state_size + j].first;
+	    	while(node != NULL)
+	    	{
+	    		printf("Bonjour %d %c\n",i,'a'+j);
+	    		struct state_node* next_node = node->next;
+	    		free(node);
+	    		node = next_node;
+	    	}
+    	}
     }
     free(self->transitions);
     self->transitions = NULL;
+    self->states = NULL;
     self->state_size = 0;
     self->alpha_size = 0;
 }
@@ -111,31 +86,55 @@ void fa_set_state_final(struct fa *self, size_t state_id)
 void fa_add_transition(struct fa *self, size_t state_id_from, char alpha, size_t state_id_to)
 {
     unsigned int index2 = 'a' - alpha;
-    set_add(&(self->transitions[state_id_from][index2]),state_id_to);
+
+	/*if(NULL == state_set->first)
+    {
+        state_node node;
+        node_create(&node,state_id);
+        state_set->first = &node;
+    }
+    else
+    {
+        state_node newNode;
+        node_create(&newNode,state_id);
+        state_node* node = state_set->first;
+        while(NULL != node->next){
+            if(node->state == state_id)
+                return;
+            node = node->next;
+        }
+        node->next = &newNode;
+    }*/
 }
 
 void fa_print(struct fa *self, FILE* out)
 {
-    int i;
-    fprintf(out,"Initial states : ");
+    int i,j;
+    fprintf(out,"Initial states : \n\t");
     for(i = 0; i < self->state_size; i++)
     {
         if(self->states[i].is_initial == true)
-            fprintf(out,"%d ",self->states[i].id);
+            fprintf(out,"%u ",self->states[i].id);
     }
 
-    fprintf(out,"\nFinal states : ");
+    fprintf(out,"\nFinal states : \n\t");
     for(i = 0; i < self->state_size; i++)
     {
         if(self->states[i].is_final == true)
-            fprintf(out,"%d ",self->states[i].id);
+            fprintf(out,"%u ",self->states[i].id);
     }
 
     fprintf(out,"\nTransitions : ");
     for(i = 0; i < self->state_size; i++)
     {
-        fprintf(out,"\n\t For state %d ",self->states[i].id);
+        fprintf(out,"\n\t For state %u ",self->states[i].id);
+        for(j = 0; j < self->alpha_size; ++j)
+        {
+        	
+        }
     }
+
+    fprintf(out, "\n");
 }
 
 int main()
