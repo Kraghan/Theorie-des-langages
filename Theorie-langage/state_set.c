@@ -19,6 +19,28 @@ void stateSetCreate(state_set* self, unsigned int capacity, char alpha, unsigned
     }
 }
 
+void stateSetRemove(state_set* self, unsigned int state)
+{
+    if(self->size == 0)
+        return;
+
+    unsigned int i,j;
+    for(i = 0; i < self->size ; ++i)
+    {
+        if(state == self->states[i].id)
+        {
+            // On descend tous les états suivants
+            for(j = i; j < self->size ; ++j)
+            {
+                self->states[j] = self->states[j+1];
+            }
+            self->size--;
+            stateCreate(&self->states[self->capacity-1],99999);
+            return;
+        }
+    }
+}
+
 void stateSetAdd(state_set* self, unsigned int state)
 {
     if(self->size == self->capacity)
@@ -34,4 +56,9 @@ void stateSetPrint(state_set* self, FILE* out)
     {
         fprintf(out,"%u ",self->states[i].id);
     }
+}
+
+unsigned int stateSetCount(state_set* self)
+{
+    return self->size;
 }

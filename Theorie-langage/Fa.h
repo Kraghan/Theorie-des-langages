@@ -19,6 +19,10 @@ struct fa{
 
 typedef struct fa fa;
 
+bool faAddState(fa* self, unsigned int state);
+
+int faGetStateIndex(fa* self, unsigned int state);
+
 void faCreate(fa* self, unsigned int alpha_count, unsigned int state_count);
 
 void faDestroy(fa* self);
@@ -30,5 +34,19 @@ void faSetStateFinal(fa* self, unsigned int state);
 void faAddTransition(fa* self, unsigned int from, char alpha, unsigned int to);
 
 void faPrint(fa* self, FILE* out);
+
+void faRemoveTransition(fa* self, unsigned int from, char alpha, unsigned int to);
+
+void faRemoveState(fa* self, unsigned int state);
+
+unsigned int faCountTransitions(const fa* self);
+
+bool faIsDeterministic(const fa* self);
+
+bool faIsComplete(const fa* self);
+
+void faMakeComplete(fa* self);
+
+void faMergeStates(fa* self, unsigned int state1, unsigned int state2);
 
 #endif //THEORIE_LANGAGE_FA_H

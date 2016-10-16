@@ -23,5 +23,9 @@ void stateSetCreate(state_set* self, unsigned int capacity, char alpha, unsigned
 
 void stateSetAdd(state_set* self, unsigned int state);
 
+void stateSetRemove(state_set* self, unsigned int state);
+
 void stateSetPrint(state_set* self, FILE* out);
+
+unsigned int stateSetCount(state_set* self);
 #endif //THEORIE_LANGAGE_STATE_SET_H
