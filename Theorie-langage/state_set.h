@@ -27,5 +27,7 @@ void stateSetRemove(state_set* self, unsigned int state);
 
 void stateSetPrint(state_set* self, FILE* out);
 
+bool stateSetContains(state_set* self, unsigned int state);
+
 unsigned int stateSetCount(state_set* self);
 #endif //THEORIE_LANGAGE_STATE_SET_H

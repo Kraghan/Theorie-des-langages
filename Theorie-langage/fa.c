@@ -21,7 +21,10 @@ int faGetStateIndex(fa* self, unsigned int state)
 bool faAddState(fa* self, unsigned int state)
 {
     if(faGetStateIndex(self,state) != -1)
+    {
+        fprintf(stderr,"\nWarning : Can't add state %u. Cause : Already in.\n",state);
         return false;
+    }
 
     unsigned int i;
     for(i = 0; i < self->state_size; ++i)
@@ -32,6 +35,7 @@ bool faAddState(fa* self, unsigned int state)
             return true;
         }
     }
+    fprintf(stderr,"\nError : Can't add state. Cause : State limit reach.\n");
     return false;
 }
 
@@ -96,17 +100,23 @@ void faAddTransition(fa* self, unsigned int from, char alpha, unsigned int to)
 {
     if(alpha-'a' >= self->alpha_size)
     {
+        fprintf(stderr,"\nError : Can't add transition. Cause : Alpha isn't in possible transitions.\n");
         return;
     }
 
     int indexFrom = faGetStateIndex(self,from);
     if(indexFrom == -1)
     {
+        fprintf(stderr,"\nError : Can't add transition. Cause : From isn't in possible states.\n");
         return;
     }
 
     unsigned int index = self->alpha_size*indexFrom+(alpha-'a');
-
+    if(stateSetContains(&self->transitions[index],to))
+    {
+        fprintf(stderr,"\nError : Can't add transition %u to %u by %c. Cause : Already in.\n",from,to,alpha);
+        return;
+    }
     stateSetAdd(&self->transitions[index],to);
 }
 
@@ -166,7 +176,7 @@ void faPrint(fa* self, FILE* out)
     }
     else
     {
-        fprintf(out, "\nIs not complete");
+        fprintf(out, "\nIs not complete\n");
     }
 
 }
@@ -175,12 +185,14 @@ void faRemoveTransition(fa* self, unsigned int from, char alpha, unsigned int to
 {
     if(alpha-'a' >= self->alpha_size)
     {
+        fprintf(stderr,"\nError : Can't remove transition. Cause : alpha isn't in possible transitions.\n");
         return;
     }
 
     int indexFrom = faGetStateIndex(self,from);
     if(indexFrom == -1)
     {
+        fprintf(stderr,"\nError : Can't remove transition. Cause : From isn't in possible states.\n");
         return;
     }
 
@@ -195,6 +207,8 @@ void faRemoveState(fa* self, unsigned int state)
 
     if(stateIndex == -1)
     {
+
+        fprintf(stderr,"\nWarning : Can't remove state %u. Cause : Isn't in states list.\n",state);
         return;
     }
 
@@ -277,14 +291,92 @@ bool faIsComplete(const fa* self)
 
 void faMakeComplete(fa* self)
 {
-    if(faIsDeterministic(self))
+    if(!faIsDeterministic(self))
     {
-
+        fprintf(stderr,"\nError : Can't make complete. Cause : non deterministic.\n");
+        return;
     }
-
+    if(faIsComplete(self))
+    {
+        fprintf(stderr,"\nWarning : Can't make complete. Cause : Already complete.\n");
+        return;
+    }
+    if(!faAddState(self,99998))
+    {
+        if(faGetStateIndex(self,99998) == -1)
+        {
+            fprintf(stderr,"\nError : Can't make complete. Cause : States limit reach.\n");
+            return;
+        }
+        else
+        {
+            fprintf(stderr,"\nError : Can't make complete. Cause : state 99998 already in.\n");
+            return;
+        }
+    }
+    unsigned int i,j,nombreDeTransition;
+    for(i = 0; i < self->state_size; ++i)
+    {
+        for(j = 0; j < self->alpha_size; ++j)
+        {
+            nombreDeTransition = stateSetCount(&self->transitions[i*self->alpha_size + j]);
+            if(nombreDeTransition == 0)
+                stateSetAdd(&self->transitions[i*self->alpha_size + j],99998);
+        }
+    }
 }
 
 void faMergeStates(fa* self, unsigned int state1, unsigned int state2)
 {
+    int indexState1 = faGetStateIndex(self,state1);
+    if(indexState1 == -1)
+    {
+        fprintf(stderr,"\nError : Can't merge states %u and %u. Cause : state %u doesn't exist.\n",state1,state2,state1);
+        return;
+    }
+    int indexState2 = faGetStateIndex(self,state2);
+    if(indexState2 == -1)
+    {
+        fprintf(stderr,"\nError : Can't merge states %u and %u. Cause : state %u doesn't exist.\n",state1,state2,state2);
+        return;
+    }
 
+    if(state1 == state2)
+    {
+        fprintf(stderr,"\nWarning : Can't merge states %u and %u. Cause : Same state.\n",state1,state2,state2);
+        return;
+    }
+
+    unsigned int i,j,k;
+
+    // J'ajoute toutes les transitions partant de state2 à state1
+    for(i = 0; i < self->alpha_size;++i)
+    {
+        for(j = 0; j < self->transitions[indexState2*self->alpha_size+i].size;++j)
+        {
+            faAddTransition(self, state1, 'a' + i,self->transitions[indexState2*self->alpha_size+i].states[j].id);
+        }
+    }
+
+    // J'ajoute toutes les transitions arrivant à state2 à state1
+    for(i = 0; i < self->alpha_size;++i)
+    {
+        for(j = 0; j < self->alpha_size;++j)
+        {
+            for(k = 0; k < self->transitions[i*self->alpha_size+j].size;++k)
+            {
+                if(self->transitions[i*self->alpha_size+j].states[k].id == state2)
+                    faAddTransition(self, self->states[i].id, 'a' + j,state1);
+            }
+        }
+    }
+
+    // J'affecte les propriétés final et initial de state2 à state1
+    if(self->states[indexState2].is_final)
+        self->states[indexState1].is_final = true;
+    if(self->states[indexState2].is_initial)
+        self->states[indexState1].is_initial = true;
+
+    // Je supprime state2
+    faRemoveState(self,state2);
 }

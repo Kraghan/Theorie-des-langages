@@ -62,3 +62,14 @@ unsigned int stateSetCount(state_set* self)
 {
     return self->size;
 }
+
+bool stateSetContains(state_set* self, unsigned int state)
+{
+    unsigned int i;
+    for(i = 0; i < self->size; ++i)
+    {
+        if(self->states[i].id == state)
+            return true;
+    }
+    return false;
+}
