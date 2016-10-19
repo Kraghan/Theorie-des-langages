@@ -3,12 +3,14 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/state_set.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/state.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/state.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/state_set.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/graph.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fa.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/main.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/state_set.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/graph.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/fa.c" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

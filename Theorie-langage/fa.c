@@ -4,6 +4,19 @@
 
 #include "fa.h"
 
+unsigned int faCountState(fa* self)
+{
+    unsigned int i;
+    for(i = 0; i < self->state_size; ++i)
+    {
+        if(self->states[i].id == 99999)
+        {
+            return i;
+        }
+    }
+    return i;
+}
+
 // Return -1 if not found
 int faGetStateIndex(fa* self, unsigned int state)
 {

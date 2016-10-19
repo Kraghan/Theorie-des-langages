@@ -19,6 +19,8 @@ struct fa{
 
 typedef struct fa fa;
 
+unsigned int faCountState(fa* self);
+
 bool faAddState(fa* self, unsigned int state);
 
 int faGetStateIndex(fa* self, unsigned int state);
