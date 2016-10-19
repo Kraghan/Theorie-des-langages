@@ -140,12 +140,16 @@ void faPrint(fa* self, FILE* out)
     fprintf(out,"States : \n\t");
     for(i = 0; i < self->state_size;++i)
     {
+        if(self->states[i].id == 99999)
+            continue;
         fprintf(out,"%u ",self->states[i].id);
     }
 
     fprintf(out,"\nInitial states : \n\t");
     for(i = 0; i < self->state_size;++i)
     {
+        if(self->states[i].id == 99999)
+            continue;
         if(self->states[i].is_initial == true)
         {
             fprintf(out,"%u ",self->states[i].id);
@@ -155,6 +159,8 @@ void faPrint(fa* self, FILE* out)
     fprintf(out,"\nFinal states : \n\t");
     for(i = 0; i < self->state_size;++i)
     {
+        if(self->states[i].id == 99999)
+            continue;
         if(self->states[i].is_final == true)
         {
             fprintf(out,"%u ",self->states[i].id);
@@ -164,6 +170,8 @@ void faPrint(fa* self, FILE* out)
     fprintf(out,"\nTransitions :");
     for(i = 0; i < self->state_size;++i)
     {
+        if(self->states[i].id == 99999)
+            continue;
         fprintf(out,"\n\t For state : %u",self->states[i].id);
         for(j = 0; j < self->alpha_size; ++j)
         {
@@ -356,7 +364,7 @@ void faMergeStates(fa* self, unsigned int state1, unsigned int state2)
 
     if(state1 == state2)
     {
-        fprintf(stderr,"\nWarning : Can't merge states %u and %u. Cause : Same state.\n",state1,state2,state2);
+        fprintf(stderr,"\nWarning : Can't merge states %u and %u. Cause : Same state.\n",state1,state2);
         return;
     }
 
