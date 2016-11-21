@@ -17,14 +17,14 @@
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
-          <root url="file://E:/Program Files (x86)/CodeBlocks/MinGW/include" />
-          <root url="file://E:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include-fixed" />
-          <root url="file://E:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include" />
+          <root url="file://C:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include-fixed" />
+          <root url="file://C:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include" />
+          <root url="file://C:/Program Files (x86)/CodeBlocks/MinGW/include" />
         </CLASSES>
         <SOURCES>
-          <root url="file://E:/Program Files (x86)/CodeBlocks/MinGW/include" />
-          <root url="file://E:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include-fixed" />
-          <root url="file://E:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include" />
+          <root url="file://C:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include-fixed" />
+          <root url="file://C:/Program Files (x86)/CodeBlocks/MinGW/lib/gcc/mingw32/4.9.2/include" />
+          <root url="file://C:/Program Files (x86)/CodeBlocks/MinGW/include" />
         </SOURCES>
       </library>
     </orderEntry>

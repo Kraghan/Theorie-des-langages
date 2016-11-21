@@ -4,7 +4,8 @@
 
 #include "state_set.h"
 
-void stateSetCreate(state_set* self, unsigned int capacity, char alpha, unsigned int s)
+void state_set_create(state_set *self, unsigned int capacity, char alpha,
+                      unsigned int s)
 {
     self->alphaId = alpha;
     self->capacity = capacity;
@@ -15,11 +16,11 @@ void stateSetCreate(state_set* self, unsigned int capacity, char alpha, unsigned
     unsigned int i;
     for(i = 0; i < capacity; ++i)
     {
-        stateCreate(&self->states[i],99999);
+        state_create(&self->states[i], 99999);
     }
 }
 
-void stateSetRemove(state_set* self, unsigned int state)
+void state_set_remove(state_set *self, unsigned int state)
 {
     if(self->size == 0)
         return;
@@ -35,21 +36,21 @@ void stateSetRemove(state_set* self, unsigned int state)
                 self->states[j] = self->states[j+1];
             }
             self->size--;
-            stateCreate(&self->states[self->capacity-1],99999);
+            state_create(&self->states[self->capacity - 1], 99999);
             return;
         }
     }
 }
 
-void stateSetAdd(state_set* self, unsigned int state)
+void state_set_add(state_set *self, unsigned int state)
 {
     if(self->size == self->capacity)
         return;
-    stateCreate(&self->states[self->size],state);
+    state_create(&self->states[self->size], state);
     ++self->size;
 }
 
-void stateSetPrint(state_set* self, FILE* out)
+void state_set_print(state_set *self, FILE *out)
 {
     unsigned int i;
     for(i = 0; i < self->size; ++i)
@@ -58,12 +59,12 @@ void stateSetPrint(state_set* self, FILE* out)
     }
 }
 
-unsigned int stateSetCount(state_set* self)
+unsigned int state_set_count(state_set *self)
 {
     return self->size;
 }
 
-bool stateSetContains(state_set* self, unsigned int state)
+bool state_set_contains(state_set *self, unsigned int state)
 {
     unsigned int i;
     for(i = 0; i < self->size; ++i)

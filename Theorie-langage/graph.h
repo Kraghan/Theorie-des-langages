@@ -15,11 +15,15 @@ struct graph
 
 typedef struct graph graph;
 
-void graphDepthFirstSearch(const graph* self, unsigned int state, bool* visited);
+void graph_depth_first_search(const graph *self, unsigned int state,
+                              bool *visited);
 
-bool graphHasPath(const graph* self, unsigned int from, unsigned int to);
+bool graph_has_path(const graph *self, unsigned int from, unsigned int to);
 
-void graphCreateFromFa(graph* self, const struct fa* fa, bool inverted);
+void graph_create_from_fa(graph *self, const struct fa *fa, bool inverted);
 
+void graph_destroy(graph *self);
+
+void graph_print(const graph *self, FILE *out);
 
 #endif //THEORIE_LANGAGE_GRAPH_H

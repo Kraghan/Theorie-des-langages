@@ -16,10 +16,10 @@ struct state{
 
 typedef struct state state;
 
-void stateCreate(state* self,unsigned int id);
+void state_create(state *self, unsigned int id);
 
-void stateSetInitial(state* self);
+void state_set_initial(state *self);
 
-void stateSetFinal(state* self);
+void state_set_final(state *self);
 
 #endif //THEORIE_LANGAGE_STATE_H

@@ -3,19 +3,19 @@
 //
 #include "state.h"
 
-void stateCreate(state* self,unsigned int id)
+void state_create(state *self, unsigned int id)
 {
     self->is_final = false;
     self->id = id;
     self->is_initial = false;
 }
 
-void stateSetInitial(state* self)
+void state_set_initial(state *self)
 {
     self->is_initial = true;
 }
 
-void stateSetFinal(state* self)
+void state_set_final(state *self)
 {
     self->is_final = true;
 }
