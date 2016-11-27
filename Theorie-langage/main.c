@@ -132,31 +132,41 @@ int main()
         }
     }while(isRunning);
 
+    fa_destroy(&automate);
+
     // For testing only
 
-    /*
-    fa_create(&automate, 2, 5);
+    /*fa automate, automate2, automateFusion;
+
+    fa_create(&automate, 2, 2);
 
     fa_add_state(&automate, 0);
     fa_add_state(&automate, 1);
-    fa_add_state(&automate, 2);
-    fa_add_state(&automate, 3);
-    fa_add_state(&automate, 4);
     fa_set_state_initial(&automate, 0);
-    fa_set_state_initial(&automate, 4);
-    fa_set_state_final(&automate, 2);
-    fa_add_transition(&automate, 0, 'a', 1);
-    fa_add_transition(&automate, 1, 'b', 2);
-    fa_add_transition(&automate, 3, 'a', 2);
-    fa_print(&automate, stdout);
+    fa_set_state_final(&automate, 1);
+    fa_add_transition(&automate, 0, 'a', 0);
+    fa_add_transition(&automate, 0, 'b', 1);
+    fa_add_transition(&automate, 1, 'a', 1);
+    //fa_print(&automate, stdout);
 
-    fa_remove_non_accessible_state(&automate);
+    fa_create(&automate2, 2, 3);
 
-    fa_remove_non_co_accessible_state(&automate);
+    fa_add_state(&automate2, 0);
+    fa_add_state(&automate2, 1);
+    fa_add_state(&automate2, 2);
+    fa_set_state_initial(&automate2, 0);
+    fa_set_state_final(&automate2, 2);
+    fa_add_transition(&automate2, 0, 'b', 0);
+    fa_add_transition(&automate2, 0, 'a', 1);
+    fa_add_transition(&automate2, 1, 'b', 1);
+    fa_add_transition(&automate2, 1, 'b', 2);
+    fa_add_transition(&automate2, 2, 'b', 2);
 
-    fa_print(&automate, stdout);
-*/
+    fa_create_product(&automateFusion,&automate,&automate2);
+
     fa_destroy(&automate);
+    fa_destroy(&automate2);
+    fa_destroy(&automateFusion);*/
 
     return 0;
 }

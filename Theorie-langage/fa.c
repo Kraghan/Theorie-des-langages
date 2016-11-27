@@ -68,7 +68,7 @@ void fa_create(fa *self, unsigned int alpha_count, unsigned int state_count)
     for(i = 0; i < state_count*alpha_count;++i)
     {
         state_set_create(&self->transitions[i], state_count,
-                         'a' + (i % alpha_count), i / state_count);
+                         (char)('a' + (i % alpha_count)), i / state_count);
     }
 }
 
@@ -135,7 +135,7 @@ void fa_add_transition(fa *self, unsigned int from, char alpha, unsigned int to)
     state_set_add(&self->transitions[index], to);
 }
 
-void fa_print(fa *self, FILE *out)
+void fa_print(const fa *self, FILE *out)
 {
     unsigned int i,j,index;
 
@@ -520,36 +520,48 @@ void fa_remove_non_co_accessible_state(fa *self)
 
 void fa_create_product(fa* self, const fa* lhs, const fa* rhs)
 {
-    unsigned int alphaSize = lhs->alpha_size < rhs->alpha_size ? lhs->alpha_size
-                                                               : rhs->alpha_size;
-    fa_create(self,alphaSize, lhs->state_size * rhs->state_size);
-    unsigned int i, j, k,lhsCursor, rhsCursor;
+    unsigned int alpha_size = lhs->alpha_size < rhs->alpha_size ?
+                              lhs->alpha_size : rhs->alpha_size;
 
-    // Pour chaque lettre
-    for (k = 0; k < alphaSize; ++k)
+    unsigned int state_size = lhs->state_size * rhs->state_size;
+
+    fa_create(self,alpha_size,state_size);
+
+    unsigned int i,j,k;
+
+    for(i = 0; i < state_size; ++i)
     {
-        for(i = 0; i < lhs->state_size; ++i)
+        fa_add_state(self,i);
+
+        if(lhs->states[i/rhs->state_size].is_initial &&
+                rhs->states[i%rhs->state_size].is_initial)
         {
-            for(lhsCursor = 0; lhsCursor < lhs->state_size; ++lhsCursor)
+            fa_set_state_initial(self,i);
+        }
+
+        if(lhs->states[i/rhs->state_size].is_final &&
+           rhs->states[i%rhs->state_size].is_final)
+        {
+            fa_set_state_final(self,i);
+        }
+    }
+
+    for(i = 0; i < state_size; ++i)
+    {
+        for(j = 0; j < alpha_size; ++j)
+        {
+            unsigned int lhsFrom = lhs->states[i/rhs->state_size].id;
+            unsigned int rhsFrom = rhs->states[i%rhs->state_size].id;
+
+            for(k = 0; k < state_size; ++k)
             {
-                // On regarde si il existe une transition entre i et
-                // lhsCursor dans lhs pour la lettre k
-                if(fa_has_transition(lhs,k,i,lhsCursor))
+                unsigned int lhsTo = lhs->states[k/rhs->state_size].id;
+                unsigned int rhsTo = rhs->states[k%rhs->state_size].id;
+
+                if(fa_has_transition(lhs,j,lhsFrom,lhsTo) &&
+                        fa_has_transition(rhs,j,rhsFrom,rhsTo))
                 {
-                    for (j = 0; j < rhs->state_size; ++j)
-                    {
-                        for(rhsCursor = 0; rhsCursor < rhs->state_size;++rhsCursor)
-                        {
-                            // On regarde si il existe une transition entre j et
-                            // rhsCursor dans rhs pour la lettre k
-                            if(fa_has_transition(rhs,k,j,rhsCursor))
-                            {
-                                fa_add_transition(self, i*rhs->state_size+j,
-                                                  (char)('a'+k),
-                                                  lhsCursor*rhs->state_size+rhsCursor);
-                            }
-                        }
-                    }
+                    fa_add_transition(self,i,'a'+j,k);
                 }
             }
         }
@@ -558,7 +570,9 @@ void fa_create_product(fa* self, const fa* lhs, const fa* rhs)
 
 bool fa_has_empty_intersection(const struct fa* lhs, const struct fa* rhs)
 {
-
+    fa automate;
+    fa_create_product(&automate,lhs,rhs);
+    return fa_is_language_empty(&automate);
 }
 
 
@@ -566,5 +580,6 @@ bool fa_has_transition(const fa* self, unsigned int alphaIndex, unsigned int
 from, unsigned int to)
 {
     int fromIndex = fa_get_state_index(self, from);
-    return state_set_contains(&self->transitions[fromIndex+alphaIndex],to);
+    return state_set_contains(&self->transitions[fromIndex*self->alpha_size+alphaIndex],
+                              to);
 }
