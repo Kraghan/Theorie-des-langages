@@ -572,7 +572,9 @@ bool fa_has_empty_intersection(const struct fa* lhs, const struct fa* rhs)
 {
     fa automate;
     fa_create_product(&automate,lhs,rhs);
-    return fa_is_language_empty(&automate);
+    bool empty = fa_is_language_empty(&automate);
+    fa_destroy(&automate);
+    return empty;
 }
 
 
