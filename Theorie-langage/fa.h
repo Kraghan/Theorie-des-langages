@@ -203,6 +203,8 @@ bool fa_is_included(const fa * lhs, const fa * rhs);
 /**
  * Quick exponanciation
  */
-unsigned int pow(unsigned int integer, unsigned int exposant);
+unsigned int custom_pow(unsigned int integer, unsigned int exposant);
+
+state_set* fa_find_transition(const fa * self, unsigned int alphaIndex,unsigned int state_id);
 
 #endif //THEORIE_LANGAGE_FA_H

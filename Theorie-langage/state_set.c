@@ -79,3 +79,32 @@ bool state_set_is_empty(state_set *self)
 {
     return self->states[0].id == 99999;
 }
+
+bool state_set_is_equal(state_set* first, state_set* second)
+{
+    unsigned int i = 0;
+    for(i = 0; i < first->size; ++i)
+    {
+        if(!state_set_contains(second,first->states[i].id))
+            return false;
+    }
+
+    for(i = 0; i < second->size; ++i)
+    {
+        if(!state_set_contains(first,second->states[i].id))
+            return false;
+    }
+
+    return true;
+}
+
+void state_set_add_set(state_set* self, const state_set* to_add)
+{
+    unsigned int i;
+    for(i = 0; i < to_add->size; ++i)
+    {
+        if(!state_set_contains(self,to_add->states[i].id))
+            state_set_add(self,to_add->states[i].id);
+    }
+}
+

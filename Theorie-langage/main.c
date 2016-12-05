@@ -6,11 +6,11 @@
 
 int main()
 {
-    fa automates[10];
+    //fa automates[10];
 
     fa automate;
 
-    unsigned int nbAutomate = 0, currentAutomate = 0;
+    /*unsigned int nbAutomate = 0, currentAutomate = 0;
     bool isRunning = true;
 
     unsigned int nbEtat, tailleAlpha, question = 9999, questionAutomate = 9999,
@@ -222,10 +222,11 @@ int main()
     for(i = 0; i < nbAutomate; i++)
     {
         fa_destroy(&automates[i]);
-    }
+    }*/
 
     // For testing only
-    /*fa_create(&automate, 2, 5);
+    fa deterministe;
+    fa_create(&automate, 2, 5);
 
     fa_add_state(&automate, 0);
     fa_add_state(&automate, 1);
@@ -245,12 +246,11 @@ int main()
     fa_add_transition(&automate, 3, 'b', 4);
     fa_add_transition(&automate, 4, 'a', 4);
 
-    fa_merge_states(&automate,0,1);
-    fa_merge_states(&automate,3,4);
-
     fa_print(&automate,stdout);
 
-    fa_destroy(&automate);*/
+    fa_create_deterministic(&deterministe,&automate);
+
+    fa_destroy(&automate);
 
     return 0;
 }

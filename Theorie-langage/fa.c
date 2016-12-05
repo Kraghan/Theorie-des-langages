@@ -588,12 +588,12 @@ from, unsigned int to)
 void fa_create_deterministic(fa * self, const fa *nfa)
 {
     state_set* tableCorrespondance;
-    unsigned int i, state_used, nbMaxStateDeterministic = pow(2,nfa->state_size);
+    unsigned int i, state_created, nbMaxStateDeterministic = custom_pow(2,nfa->state_size);
     tableCorrespondance = (state_set*) malloc(nbMaxStateDeterministic * sizeof(state_set));
 
     for(i = 0; i < nbMaxStateDeterministic; ++i)
     {
-        state_set_create(&tableCorrespondance[i],nfa->state_size,'b',0);
+        state_set_create(&tableCorrespondance[i],nfa->state_size,'1',0);
     }
 
     // Creation du premier état avec tous les initiaux
@@ -613,51 +613,89 @@ void fa_create_deterministic(fa * self, const fa *nfa)
         return;
     }
 
-    tableCorrespondance[0].alphaId = 'a';
-    state_used = 1;
+    tableCorrespondance[0].alphaId = ' ';
+    state_created = 1;
 
     i = 0;
-    while(!tableCorrespondance[i].alphaId == 'a')
+    // Pour tous les set d'etats dans la table de correspondance
+    while(tableCorrespondance[i].alphaId != '1')
     {
-        unsigned int j = 0;
-        while(tableCorrespondance[i].states[j].id != 99999)
+        unsigned int k;
+        // Pour chaque lettre
+        for(k = 0; k < nfa->alpha_size; ++k)
         {
-            unsigned int k;
-            for(k = 0; k < nfa->alpha_size; ++k)
-            {
-                state_set* alphaStateSet = fa_find_transition(nfa,k,
-                                                              tableCorrespondance[i].states[j].id);
-                if(alphaStateSet != NULL)
-                {
+            // On cree un set qui contient la lettre de transition et l'id de l'etat source de cette transition vers
+            // l'etat represente par ce set
+            state_set set;
+            state_set_create(&set,nfa->state_size,'a'+k,i);
 
-                }
+            // Pour tous les etats dans la table de correspondance
+            unsigned int j;
+            for (j = 0; j < tableCorrespondance[i].size; ++j)
+            {
+                // On ajoute les etats au set
+                state_set *alphaStateSet = fa_find_transition(nfa, k, tableCorrespondance[i].states[j].id);
+
+                if (alphaStateSet != NULL && alphaStateSet->size != 0)
+                    state_set_add_set(&set,alphaStateSet);
             }
-            ++j;
+
+            if(!state_set_is_empty(&set))
+            {
+                // On check si le set est deja present dans la table de correpondance
+                unsigned int cpt = 0;
+                bool found = false;
+                while (tableCorrespondance[cpt].alphaId != '1')
+                {
+                    if (state_set_is_equal(&tableCorrespondance[cpt], &set))
+                    {
+                        found = true;
+                        break;
+                    }
+                    ++cpt;
+                }
+                tableCorrespondance[state_created] = set;
+                // Si il ne l'est pas, on l'ajoute
+                if (!found)
+                    ++state_created;
+            }
         }
+        ++i;
+
     }
+
+    i = 0;
+    while(tableCorrespondance[i].alphaId != '1')
+    {
+        state_set_print(&tableCorrespondance[i],stdout);
+        printf("%c %u",tableCorrespondance[i].alphaId,tableCorrespondance[i].stateId );
+        printf("\n");
+        ++i;
+    }
+    free(tableCorrespondance);
 }
 
 bool fa_is_included(const fa * lhs, const fa * rhs)
 {
-
+    return false;
 }
 
-unsigned int pow(unsigned int integer, unsigned int exposant)
+unsigned int custom_pow(unsigned int integer, unsigned int exposant)
 {
     if(exposant == 1)
         return integer;
     if(exposant == 0)
         return 1;
     if(exposant%2 == 0)
-        return pow(integer*integer,exposant/2);
+        return custom_pow(integer*integer,exposant/2);
     else
-        return integer*pow(integer*integer,(exposant-1)/2);
+        return integer*custom_pow(integer*integer,(exposant-1)/2);
 }
 
 state_set* fa_find_transition(const fa * self, unsigned int alphaIndex,
                               unsigned int state_id)
 {
-    unsigned int index = fa_get_state_index(self,state_id);
+    int index = fa_get_state_index(self, state_id);
     if(index != -1)
     {
         return &self->transitions[index*self->alpha_size+alphaIndex];
