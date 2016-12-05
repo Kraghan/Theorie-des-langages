@@ -70,4 +70,10 @@ bool state_set_contains(state_set *self, unsigned int state);
  * @param self StateSet pointer
  */
 unsigned int state_set_count(state_set *self);
+
+/**
+ * Return true if the set is empty
+ * @param self StateSet pointer
+ */
+bool state_set_is_empty(state_set* self);
 #endif //THEORIE_LANGAGE_STATE_SET_H

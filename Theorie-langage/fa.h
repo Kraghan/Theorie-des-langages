@@ -173,7 +173,6 @@ void fa_create_product(fa* self, const struct fa* lhs, const struct fa* rhs);
  * Return true if the intersection of lhs and rhs is empty
  * @param lhs FA pointer
  * @param rhs FA pointer
- * @return
  */
 bool fa_has_empty_intersection(const struct fa* lhs, const struct fa* rhs);
 
@@ -186,5 +185,24 @@ bool fa_has_empty_intersection(const struct fa* lhs, const struct fa* rhs);
  */
 bool fa_has_transition(const fa* self,unsigned int alphaIndex, unsigned int
 from, unsigned int to);
+
+/**
+ * Transform the FA self to a deterministic version of nfa
+ * @param self FA pointer
+ * @param nfa FA pointer
+ */
+void fa_create_deterministic(fa * self, const fa *nfa);
+
+/**
+ * Return true if the FA lhs is included in the FA rhs
+ * @param lhs FA pointer
+ * @param rhs FA pointer
+ */
+bool fa_is_included(const fa * lhs, const fa * rhs);
+
+/**
+ * Quick exponanciation
+ */
+unsigned int pow(unsigned int integer, unsigned int exposant);
 
 #endif //THEORIE_LANGAGE_FA_H

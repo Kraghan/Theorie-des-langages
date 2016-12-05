@@ -577,11 +577,90 @@ bool fa_has_empty_intersection(const struct fa* lhs, const struct fa* rhs)
     return empty;
 }
 
-
 bool fa_has_transition(const fa* self, unsigned int alphaIndex, unsigned int
 from, unsigned int to)
 {
     int fromIndex = fa_get_state_index(self, from);
     return state_set_contains(&self->transitions[fromIndex*self->alpha_size+alphaIndex],
                               to);
+}
+
+void fa_create_deterministic(fa * self, const fa *nfa)
+{
+    state_set* tableCorrespondance;
+    unsigned int i, state_used, nbMaxStateDeterministic = pow(2,nfa->state_size);
+    tableCorrespondance = (state_set*) malloc(nbMaxStateDeterministic * sizeof(state_set));
+
+    for(i = 0; i < nbMaxStateDeterministic; ++i)
+    {
+        state_set_create(&tableCorrespondance[i],nfa->state_size,'b',0);
+    }
+
+    // Creation du premier état avec tous les initiaux
+    for(i = 0 ; i < nfa->state_size; ++i)
+    {
+        if(nfa->states[i].id == 99999)
+            continue;
+
+        if(nfa->states[i].is_initial)
+            state_set_add(&tableCorrespondance[0],nfa->states[i].id);
+    }
+
+    if(state_set_is_empty(&tableCorrespondance[0]))
+    {
+        fprintf(stderr, "Error : Can't be deterministic ! Cause : No initial "
+                "states");
+        return;
+    }
+
+    tableCorrespondance[0].alphaId = 'a';
+    state_used = 1;
+
+    i = 0;
+    while(!tableCorrespondance[i].alphaId == 'a')
+    {
+        unsigned int j = 0;
+        while(tableCorrespondance[i].states[j].id != 99999)
+        {
+            unsigned int k;
+            for(k = 0; k < nfa->alpha_size; ++k)
+            {
+                state_set* alphaStateSet = fa_find_transition(nfa,k,
+                                                              tableCorrespondance[i].states[j].id);
+                if(alphaStateSet != NULL)
+                {
+
+                }
+            }
+            ++j;
+        }
+    }
+}
+
+bool fa_is_included(const fa * lhs, const fa * rhs)
+{
+
+}
+
+unsigned int pow(unsigned int integer, unsigned int exposant)
+{
+    if(exposant == 1)
+        return integer;
+    if(exposant == 0)
+        return 1;
+    if(exposant%2 == 0)
+        return pow(integer*integer,exposant/2);
+    else
+        return integer*pow(integer*integer,(exposant-1)/2);
+}
+
+state_set* fa_find_transition(const fa * self, unsigned int alphaIndex,
+                              unsigned int state_id)
+{
+    unsigned int index = fa_get_state_index(self,state_id);
+    if(index != -1)
+    {
+        return &self->transitions[index*self->alpha_size+alphaIndex];
+    }
+    return NULL;
 }

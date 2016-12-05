@@ -74,3 +74,8 @@ bool state_set_contains(state_set *self, unsigned int state)
     }
     return false;
 }
+
+bool state_set_is_empty(state_set *self)
+{
+    return self->states[0].id == 99999;
+}
