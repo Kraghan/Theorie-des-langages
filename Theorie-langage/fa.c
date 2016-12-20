@@ -588,7 +588,7 @@ from, unsigned int to)
 void fa_create_deterministic(fa * self, const fa *nfa)
 {
     state_set* tableCorrespondance;
-    unsigned int i, state_created, nbMaxStateDeterministic = custom_pow(2,nfa->state_size);
+    unsigned int i, states, nbMaxStateDeterministic = custom_pow(2,nfa->state_size);
     tableCorrespondance = (state_set*) malloc(nbMaxStateDeterministic * sizeof(state_set));
 
     for(i = 0; i < nbMaxStateDeterministic; ++i)
@@ -613,8 +613,13 @@ void fa_create_deterministic(fa * self, const fa *nfa)
         return;
     }
 
+    // On réserve la place suffisante pour l'automate determinisé et on ajoute l'état initial
+    fa_create(self,nfa->alpha_size,nbMaxStateDeterministic);
+    fa_add_state(self,0);
+    fa_set_state_initial(self,0);
+
     tableCorrespondance[0].alphaId = ' ';
-    state_created = 1;
+    states = 1;
 
     i = 0;
     // Pour tous les set d'etats dans la table de correspondance
@@ -627,7 +632,7 @@ void fa_create_deterministic(fa * self, const fa *nfa)
             // On cree un set qui contient la lettre de transition et l'id de l'etat source de cette transition vers
             // l'etat represente par ce set
             state_set set;
-            state_set_create(&set,nfa->state_size,'a'+k,i);
+            state_set_create(&set, nfa->state_size, (char) ('a' + k), i);
 
             // Pour tous les etats dans la table de correspondance
             unsigned int j;
@@ -654,10 +659,28 @@ void fa_create_deterministic(fa * self, const fa *nfa)
                     }
                     ++cpt;
                 }
-                tableCorrespondance[state_created] = set;
+
                 // Si il ne l'est pas, on l'ajoute
                 if (!found)
-                    ++state_created;
+                {
+                    tableCorrespondance[states] = set;
+                    fa_add_state(self,states);
+                    for(cpt = 0; cpt < set.size; ++cpt)
+                    {
+                        if(nfa->states[fa_get_state_index(nfa,set.states[cpt].id)].is_final)
+                        {
+                            fa_set_state_final(self,states);
+                            break;
+                        }
+                    }
+                    // On ajoute la transition
+                    fa_add_transition(self,i,(char) ('a' + k),states);
+                    ++states;
+                }
+                else
+                    // On ajoute la transition
+                    if(i != 0)
+                        fa_add_transition(self,i,(char) ('a' + k),cpt);
             }
         }
         ++i;
@@ -667,6 +690,7 @@ void fa_create_deterministic(fa * self, const fa *nfa)
     i = 0;
     while(tableCorrespondance[i].alphaId != '1')
     {
+        printf("%u : ",i);
         state_set_print(&tableCorrespondance[i],stdout);
         printf("%c %u",tableCorrespondance[i].alphaId,tableCorrespondance[i].stateId );
         printf("\n");
@@ -677,6 +701,7 @@ void fa_create_deterministic(fa * self, const fa *nfa)
 
 bool fa_is_included(const fa * lhs, const fa * rhs)
 {
+
     return false;
 }
 

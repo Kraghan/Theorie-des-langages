@@ -12,8 +12,8 @@
 /**
  * Size : Number of states stored in the set
  * Capacity : Maximum number of states can be stored in the set
- * StateId : Used for the determinisation
- * AlphaId : Used for the determinisation
+ * StateId : Used for the determination
+ * AlphaId : Used for the determination
  * States : List of states
  */
 struct state_set
@@ -77,7 +77,17 @@ unsigned int state_set_count(state_set *self);
  */
 bool state_set_is_empty(state_set* self);
 
+/**
+ * Return true if state set are equals
+ * @param first StateSet pointer
+ * @param second StateSet pointer
+ */
 bool state_set_is_equal(state_set* first, state_set* second);
 
+/**
+ * Add a set to an other
+ * @param self StateSet receiver
+ * @param to_add StateSet to add to self
+ */
 void state_set_add_set(state_set* self, const state_set* to_add);
 #endif //THEORIE_LANGAGE_STATE_SET_H

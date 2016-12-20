@@ -205,6 +205,12 @@ bool fa_is_included(const fa * lhs, const fa * rhs);
  */
 unsigned int custom_pow(unsigned int integer, unsigned int exposant);
 
+/**
+ * Return the transition for the state state_id at the letter alphaIndex
+ * @param self FA pointer
+ * @param alphaIndex Letter index
+ * @param state_id State id
+ */
 state_set* fa_find_transition(const fa * self, unsigned int alphaIndex,unsigned int state_id);
 
 #endif //THEORIE_LANGAGE_FA_H

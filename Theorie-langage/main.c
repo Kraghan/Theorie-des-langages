@@ -252,5 +252,8 @@ int main()
 
     fa_destroy(&automate);
 
+    fa_print(&deterministe,stdout);
+    fa_destroy(&deterministe);
+
     return 0;
 }
