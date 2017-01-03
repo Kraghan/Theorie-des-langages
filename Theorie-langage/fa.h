@@ -79,6 +79,13 @@ void fa_set_state_initial(fa *self, unsigned int state);
 void fa_set_state_final(fa *self, unsigned int state);
 
 /**
+ * Set the state state non final
+ * @param self FA pointer
+ * @param state Id of the state
+ */
+void fa_set_state_non_final(fa *self, unsigned int state);
+
+/**
  * Add a transition to the FA
  * @param self FA pointer
  * @param from Start of the transition (id of the state)
@@ -212,5 +219,15 @@ unsigned int custom_pow(unsigned int integer, unsigned int exposant);
  * @param state_id State id
  */
 state_set* fa_find_transition(const fa * self, unsigned int alphaIndex,unsigned int state_id);
+
+void fa_create_complementaire(fa* self, const fa* nfa);
+
+void fa_create_sub_fa(fa* self, const fa* nfa, unsigned state);
+
+bool fa_are_nerode_equivalent(const fa* self, unsigned state1, unsigned state2);
+
+void fa_create_minimal_nerode(fa* self, const fa* other);
+
+void fa_create_minimal_moore(fa* self, const fa* other);
 
 #endif //THEORIE_LANGAGE_FA_H

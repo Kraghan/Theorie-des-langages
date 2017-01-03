@@ -111,6 +111,18 @@ void fa_set_state_final(fa *self, unsigned int state)
     }
 }
 
+void fa_set_state_non_final(fa *self, unsigned int state)
+{
+    unsigned int i;
+    for(i = 0; i < self->state_size;++i)
+    {
+        if(self->states[i].id == state)
+        {
+            state_set_non_final(&(self->states[i]));
+        }
+    }
+}
+
 void fa_add_transition(fa *self, unsigned int from, char alpha, unsigned int to)
 {
     if(alpha-'a' >= self->alpha_size)
@@ -686,23 +698,16 @@ void fa_create_deterministic(fa * self, const fa *nfa)
         ++i;
 
     }
-
-    i = 0;
-    while(tableCorrespondance[i].alphaId != '1')
-    {
-        printf("%u : ",i);
-        state_set_print(&tableCorrespondance[i],stdout);
-        printf("%c %u",tableCorrespondance[i].alphaId,tableCorrespondance[i].stateId );
-        printf("\n");
-        ++i;
-    }
     free(tableCorrespondance);
 }
 
 bool fa_is_included(const fa * lhs, const fa * rhs)
 {
-
-    return false;
+    fa tmp;
+    fa_create_complementaire(&tmp,rhs);
+    bool res = fa_has_empty_intersection(&tmp,lhs);
+    fa_destroy(&tmp);
+    return res;
 }
 
 unsigned int custom_pow(unsigned int integer, unsigned int exposant)
@@ -726,4 +731,299 @@ state_set* fa_find_transition(const fa * self, unsigned int alphaIndex,
         return &self->transitions[index*self->alpha_size+alphaIndex];
     }
     return NULL;
+}
+
+void fa_create_complementaire(fa* self, const fa* nfa)
+{
+    fa tmp;
+    fa_create_deterministic(&tmp,nfa);
+    fa_make_complete(&tmp);
+
+    fa_create(self,tmp.alpha_size,tmp.state_size+1);
+    unsigned i,j,k;
+    // On créé les états
+    for(i = 0; i < tmp.state_size; ++i)
+    {
+        if(tmp.states[i].id != 99999)
+        {
+            fa_add_state(self, tmp.states[i].id);
+            if(tmp.states[i].is_final)
+                fa_set_state_final(self,tmp.states[i].id);
+            if(tmp.states[i].is_initial)
+                fa_set_state_initial(self,tmp.states[i].id);
+        }
+    }
+
+    // On créé les transitions
+    for(i = 0; i < tmp.state_size; ++i)
+    {
+        if(tmp.states[i].id != 99999)
+        {
+            for(k = 0; k < tmp.state_size; ++k)
+            {
+                if(tmp.states[k].id != 99999)
+                {
+                    for(j = 0; j < tmp.alpha_size; ++j)
+                    {
+                        if(fa_has_transition(&tmp,j,tmp.states[i].id,tmp.states[k].id))
+                            fa_add_transition(self,tmp.states[i].id,'a'+j,tmp.states[k].id);
+                    }
+                }
+            }
+        }
+    }
+
+    for(i = 0; i < tmp.state_size; ++i)
+    {
+        if(tmp.states[i].id != 99999)
+        {
+            if(!tmp.states[i].is_final)
+                fa_set_state_final(self,tmp.states[i].id);
+            else
+                fa_set_state_non_final(self,tmp.states[i].id);
+        }
+    }
+
+    fa_destroy(&tmp);
+}
+
+void fa_create_sub_fa(fa* self, const fa* nfa, unsigned state)
+{
+    if(fa_get_state_index(nfa,state) == -1)
+    {
+        fprintf(stderr,"Can't create sub fa : state %u is not in nfa",state);
+        return;
+    }
+
+    fa_create(self,nfa->alpha_size,nfa->state_size);
+    fa_add_state(self,state);
+    fa_set_state_initial(self,state);
+
+    unsigned alpha_index, stateIndex = 0;
+    state_set* currentTransition;
+
+    while(stateIndex < self->state_size && self->states[stateIndex].id != 99999)
+    {
+        for (alpha_index = 0; alpha_index < nfa->alpha_size; ++alpha_index)
+        {
+            if ((currentTransition = fa_find_transition(nfa, alpha_index, self->states[stateIndex].id)) != NULL)
+            {
+                unsigned i = 0;
+                while(currentTransition->states[i].id != 99999)
+                {
+                    if(fa_get_state_index(self,currentTransition->states[i].id) == -1)
+                    {
+                        fa_add_state(self, currentTransition->states[i].id);
+                        if(nfa->states[fa_get_state_index(nfa,currentTransition->states[i].id)].is_initial)
+                            fa_set_state_initial(self,currentTransition->states[i].id);
+                        if(nfa->states[fa_get_state_index(nfa,currentTransition->states[i].id)].is_final)
+                            fa_set_state_final(self,currentTransition->states[i].id);
+                    }
+                    fa_add_transition(self,self->states[stateIndex].id,'a'+alpha_index,currentTransition->states[i].id);
+                    ++i;
+                }
+            }
+        }
+        stateIndex++;
+    }
+}
+
+bool fa_are_nerode_equivalent(const fa* self, unsigned state1, unsigned state2)
+{
+    fa subFa1, subFa2;
+
+    fa_create_sub_fa(&subFa1,self,state1);
+    fa_create_sub_fa(&subFa2,self,state2);
+
+    return fa_is_included(&subFa1,&subFa2) && fa_is_included(&subFa2,&subFa1);
+}
+
+void fa_create_minimal_nerode(fa* self, const fa* other)
+{
+    // On crée une copie de l'automate initial
+    fa_create(self,other->alpha_size,other->state_size);
+
+    unsigned i,j,k;
+    for(i = 0; i < other->state_size; ++i)
+    {
+        if(other->states[i].id != 99999)
+        {
+            fa_add_state(self, other->states[i].id);
+            if(other->states[i].is_final)
+                fa_set_state_final(self,other->states[i].id);
+
+            if(other->states[i].is_initial)
+                fa_set_state_initial(self,other->states[i].id);
+        }
+    }
+
+    for(i = 0; i < other->state_size; ++i)
+    {
+        if(other->states[i].id != 99999)
+            for(j = 0; j < other->alpha_size; ++j)
+            {
+                for(k = 0; k < other->state_size; ++k)
+                {
+                    if(other->states[k].id != 99999
+                       && fa_has_transition(other, j, other->states[i].id, other->states[k].id))
+                            fa_add_transition(self, other->states[i].id, (char) ('a' + j), other->states[k].id);
+                }
+            }
+    }
+
+    bool estModifie = true;
+    while(estModifie)
+    {
+        unsigned compteur = 0;
+        estModifie = false;
+        while (self->states[compteur].id != 99999 && compteur < self->state_size)
+        {
+            unsigned compteur2 = 0;
+            while (self->states[compteur2].id != 99999 && compteur2 < self->state_size)
+            {
+                if (compteur != compteur2 && fa_are_nerode_equivalent(self, self->states[compteur].id,
+                                                                 self->states[compteur2].id))
+                {
+                    estModifie = true;
+                    fa_merge_states(self,self->states[compteur].id,self->states[compteur2].id);
+                    break;
+                }
+                ++compteur2;
+            }
+
+            if(estModifie)
+                break;
+
+            ++compteur;
+        }
+    }
+}
+
+void fa_create_minimal_moore(fa* self, const fa* other)
+{
+    // Fonction de test d'égalité des classes
+    bool testEgalite(unsigned* classeN, unsigned* classeN1, unsigned nbEtat)
+    {
+        unsigned i;
+        for(i = 0; i < nbEtat; ++i)
+            if(classeN[i] != classeN1[i])
+                return false;
+
+        return true;
+    }
+
+    int findClass(unsigned* classeN, unsigned** classeParLettre, unsigned index, unsigned nbState, unsigned
+    nbLettres)
+    {
+        unsigned i;
+        for(i = 0; i < index; ++i)
+        {
+            unsigned alpha;
+            if(classeN[index] == classeN[i])
+            {
+                for (alpha = 0; alpha < nbLettres; ++alpha)
+                {
+                    if(classeParLettre[alpha][i] == classeParLettre[alpha][index])
+                    {
+                        if (alpha == nbLettres - 1)
+                            return i;
+                        continue;
+                    }
+                    else
+                        break;
+                }
+            }
+        }
+        return -1;
+    }
+
+    fa* deterministic = (fa *) other;
+
+    if(!fa_is_deterministic(other))
+    {
+        fa_create_deterministic(deterministic,other);
+    }
+
+    // Init
+    unsigned* classeN = (unsigned *) malloc(other->state_size * sizeof(unsigned));
+    unsigned* classeN1 = (unsigned *) malloc(other->state_size * sizeof(unsigned));
+    unsigned ** classeParLettre = (unsigned **) malloc(other->alpha_size);
+    unsigned i;
+    for(i = 0; i < other->state_size; ++i)
+        classeParLettre[i] = (unsigned *) malloc(other->state_size);
+
+    // Initialize classes
+    for(i = 0; i < other->state_size; ++i)
+    {
+        if(other->states[i].id != 99999 && other->states[i].is_final)
+            classeN1[i] = 2;
+        else
+            classeN1[i] = 1;
+    }
+
+    // Algorithme de Moore
+    do
+    {
+        for (i = 0; i < other->state_size; ++i)
+        {
+            classeN[i] = classeN1[i];
+        }
+
+        // Définition des classes par lettres
+        unsigned alpha;
+        for(alpha = 0; alpha < other->alpha_size; ++alpha)
+        {
+            for (i = 0; i < other->state_size; ++i)
+            {
+                if (other->states[i].id != 99999)
+                {
+                    state_set* transition = fa_find_transition(other,alpha,i);
+                    if(transition->size == 1)
+                        classeParLettre[alpha][i] = classeN[fa_get_state_index(other,transition->states[0].id)];
+                    else if(transition->size == 0)
+                        classeParLettre[alpha][i] = 0;
+                }
+            }
+        }
+
+        unsigned value = 0;
+
+        // Definition des classes pour l'étape n
+        for (i = 0; i < other->state_size; ++i)
+        {
+            int found;
+            if((found = findClass(classeN,classeParLettre,i, other->state_size, other->alpha_size)) == -1)
+            {
+                classeN1[i] = value;
+                value++;
+            }
+            else
+                classeN1[i] = classeN1[found];
+
+        }
+
+        printf("Separator\n");
+
+        for (i = 0; i < other->state_size; ++i)
+        {
+            printf("Classe N : %u Classe N +1 : %u\n",classeN[i],classeN1[i]);
+        }
+    }while(!testEgalite(classeN,classeN1,other->state_size));
+
+    unsigned alpha;
+    for (alpha = 0; alpha < other->alpha_size; ++alpha)
+    {
+        printf("Letter : %c \n", 'a'+alpha);
+        for (i = 0; i < other->state_size; ++i)
+        {
+            printf("Classe state %d : %u \n", i, classeParLettre[alpha][i]);
+        }
+    }
+    // Création de l'automate
+
+
+    // Free memory
+    free(classeN);
+    free(classeN1);
+    free(classeParLettre);
 }

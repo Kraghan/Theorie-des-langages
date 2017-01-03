@@ -40,4 +40,10 @@ void state_set_initial(state *self);
  */
 void state_set_final(state *self);
 
+/**
+ * Set the state as non final state
+ * @param self State pointer
+ */
+void state_set_non_final(state *self);
+
 #endif //THEORIE_LANGAGE_STATE_H

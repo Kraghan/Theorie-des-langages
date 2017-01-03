@@ -225,35 +225,28 @@ int main()
     }*/
 
     // For testing only
-    fa deterministe;
-    fa_create(&automate, 2, 5);
+    fa_create(&automate, 3, 6);
+    fa_add_state(&automate,0);
+    fa_set_state_initial(&automate,0);
+    fa_add_state(&automate,1);
+    fa_add_state(&automate,2);
+    fa_add_state(&automate,3);
+    fa_add_state(&automate,4);
+    fa_add_state(&automate,5);
+    fa_set_state_final(&automate,5);
+    fa_add_transition(&automate,0,'c',1);
+    fa_add_transition(&automate,0,'a',2);
+    fa_add_transition(&automate,1,'b',3);
+    fa_add_transition(&automate,2,'b',4);
+    fa_add_transition(&automate,3,'a',5);
+    fa_add_transition(&automate,4,'a',5);
 
-    fa_add_state(&automate, 0);
-    fa_add_state(&automate, 1);
-    fa_add_state(&automate, 2);
-    fa_add_state(&automate, 3);
-    fa_add_state(&automate, 4);
-    fa_set_state_initial(&automate, 0);
-    fa_set_state_final(&automate, 1);
-    fa_set_state_final(&automate, 4);
-    fa_add_transition(&automate, 0, 'a', 1);
-    fa_add_transition(&automate, 0, 'a', 3);
-    fa_add_transition(&automate, 0, 'a', 2);
-    fa_add_transition(&automate, 1, 'b', 3);
-    fa_add_transition(&automate, 2, 'a', 3);
-    fa_add_transition(&automate, 2, 'b', 4);
-    fa_add_transition(&automate, 3, 'a', 3);
-    fa_add_transition(&automate, 3, 'b', 4);
-    fa_add_transition(&automate, 4, 'a', 4);
-
-    fa_print(&automate,stdout);
-
-    fa_create_deterministic(&deterministe,&automate);
+    fa test;
+    fa_create_minimal_moore(&test,&automate);
+    //fa_print(&test,stdout);
 
     fa_destroy(&automate);
-
-    fa_print(&deterministe,stdout);
-    fa_destroy(&deterministe);
+    //fa_destroy(&test);
 
     return 0;
 }

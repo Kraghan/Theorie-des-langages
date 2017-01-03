@@ -19,3 +19,8 @@ void state_set_final(state *self)
 {
     self->is_final = true;
 }
+
+void state_set_non_final(state *self)
+{
+    self->is_final = false;
+}
